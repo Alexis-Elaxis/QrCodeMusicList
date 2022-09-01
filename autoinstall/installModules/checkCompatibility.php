@@ -8,7 +8,7 @@ function checkExtVerCompatibility()
 {
     $c = 0;
     if (extension_loaded('zip')) $c = $c+1;
-    if (extension_loaded('pdo')) $c = $c+1;
+    if (extension_loaded('mysqli')) $c = $c+1;
     if (extension_loaded('openssl')) $c = $c+1;
 
     if($c >= 3) return true || false;

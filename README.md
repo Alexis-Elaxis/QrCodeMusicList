@@ -8,7 +8,7 @@ To start your own QrCodeMusicList instance, download the **autoinstall** folder,
 To deploy your own QrCodeMusicList instance you need:
     
     - A mysql database
-    - PHP 7 or higher (PDO, ZIP & OPENSSL extensions)
+    - PHP 7 or higher (MYSQLI, ZIP & OPENSSL extensions)
     
 ## Contributing
 Contributors are welcome, in order to improve the optimization, the responsive, or anything I wouldn't have thought of ;)
