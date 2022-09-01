@@ -21,39 +21,93 @@ if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"])
     if ($conn->connect_error) {
         header('Location: ?e=database');
     } else {
-        $conn->close();
+        $sql = "CREATE TABLE IF NOT EXISTS `users` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `firstname` varchar(255) NOT NULL,
+            `lastname` varchar(255) NOT NULL,
+            `password` varchar(255) NOT NULL,
+            `email` varchar(255) NOT NULL,
+            `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
-        $database_data = json_decode(file_get_contents("../config/database.json"));
+        if ($conn->query($sql) === TRUE) {
+          $sql = "CREATE TABLE IF NOT EXISTS `songs`( 
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `video_id` varchar(255) NOT NULL,
+            `video_title` varchar(255) NOT NULL,
+            `video_thumbnail` varchar(255) NOT NULL,
+            `video_author` varchar(255) NOT NULL,
+            `video_duration` varchar(255) NOT NULL,
+            `video_rounded_duration` varchar(255) NOT NULL,
+            `likes` varchar(255) NOT NULL,
+            `lastlike` varchar(255) NOT NULL,
+            `warn` varchar(255) NOT NULL,
+            `lastwarn` varchar(255) NOT NULL,
+            `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+          if ($conn->query($sql) === TRUE) {
+            $sql = "CREATE TABLE IF NOT EXISTS `realtime` (
+              `id` int(11) NOT NULL AUTO_INCREMENT,
+              `current_listening_id` varchar(255) NOT NULL,
+              `current_video_duration` varchar(255) NOT NULL,
+              `video_pause` boolean NOT NULL,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
-        $database_data->serveradress = $servername;
-        $database_data->username = $username;
-        $database_data->password = $password;
-        $database_data->database = $dbname;
+            if ($conn->query($sql) === TRUE) {
+              $rslt = $conn->query("SELECT * FROM realtime WHERE id = 1");
+              if($rslt->num_rows > 0){
 
-        $newJsonString = json_encode($database_data);
-        if(file_put_contents("../config/database.json", $newJsonString) >= 1){
-            $config_data = json_decode(file_get_contents("../config/config.json"));
+              } else {
+                $sql = "INSERT INTO `realtime` (`current_listening_id`, `current_video_duration`, `video_pause`) VALUES ('1', '0', 0);";
+                if ($conn->query($sql) === TRUE) {
+                  $conn->close();
 
-            $config_data->place_name = $place_name;
-            $config_data->place_description = $place_description;
-            $config_data->place_location = $place_location;
-            $config_data->language = $language;
-            $config_data->login_system = $login_type;
+                  $database_data = json_decode(file_get_contents("../config/database.json"));
 
-            $newJsonString = json_encode($config_data);
-            if(file_put_contents("../config/config.json", $newJsonString) >= 1){
-                header('Location: ?s=all');
+                  $database_data->serveradress = $servername;
+                  $database_data->username = $username;
+                  $database_data->password = $password;
+                  $database_data->database = $dbname;
+
+                  $newJsonString = json_encode($database_data);
+                  if(file_put_contents("../config/database.json", $newJsonString) >= 1){
+                    $config_data = json_decode(file_get_contents("../config/config.json"));
+
+                    $config_data->place_name = $place_name;
+                    $config_data->place_description = $place_description;
+                    $config_data->place_location = $place_location;
+                    $config_data->language = $language;
+                    $config_data->login_system = $login_type;
+
+                    $newJsonString = json_encode($config_data);
+                    if(file_put_contents("../config/config.json", $newJsonString) >= 1){
+                      header('Location: ?s=all');
+                    } else {
+                      header('Location: ?e=writingfiles#2');
+                    }
+
+                  } else {
+                    header('Location: ?e=writingfiles#1');
+                  }
+
+                } else {
+                  header('Location: ?e=');
+                }
+                
+              } 
             } else {
-                header('Location: ?e=writingfiles#2');
+              header('Location: ?e=database');
             }
+          } else {
+            header('Location: ?e=tabledatabase');
+          }
         } else {
-            header('Location: ?e=writingfiles#1');
+          header('Location: ?e=tabledatabase');
         }
-
-        
     }
-
-    
 }
 ?>
 
@@ -151,6 +205,11 @@ if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"])
             if(isset($_GET["e"]) && $_GET["e"] == "writingfiles") {
                 echo '<div class="alert alert-danger" role="alert">
                 <strong>Oh snap!</strong> Something went wrong with writing the files, please check your permissions and try again.
+              </div>';
+            }
+            if(isset($_GET["e"]) && $_GET["e"] == "tabledatabase") {
+                echo '<div class="alert alert-danger" role="alert">
+                <strong>Oh snap!</strong> Something went wrong with creating the tables in database, please check your permissions and try again.
               </div>';
             }
 
