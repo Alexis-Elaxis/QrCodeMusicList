@@ -2,10 +2,21 @@
 ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
 $get_config = json_decode(file_get_contents('../config/config.json'));
 
-//For dev only, please remove this line in production mode
-//if($get_config->place_name !== "" && $get_config->place_description !== "") header('Location: ./');
+if($get_config->place_name !== "" && $get_config->place_description !== "") header('Location: ./');
 
-if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"]) && isset($_GET["db_pass"]) && isset($_GET["place_name"]) && isset($_GET["place_description"]) && isset($_GET["place_location"]) && isset($_GET["language"]) && isset($_GET["login-type"])) {
+//DEBUG
+// echo "DB_host: " .$_GET["db_host"];
+// echo "<br>DB_name: " .$_GET["db_name"];
+// echo "<br>DB_user: " .$_GET["db_user"];
+// echo "<br>DB_pass: " .$_GET["db_pass"];
+// echo "<br>place_name: " .$_GET["place_name"];
+// echo "<br>place_description: " .$_GET["place_description"];
+// echo "<br>place_location: " .$_GET["place_location"];
+// echo "<br>language: " .$_GET["language"];
+// echo "<br>login-type: ". $_GET["login-type"];
+// echo "<br>youtube_api_key_1: " .$_GET["youtube_api_key_1"];
+
+if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"]) && isset($_GET["db_pass"]) && isset($_GET["place_name"]) && isset($_GET["place_description"]) && isset($_GET["place_location"]) && isset($_GET["language"]) && isset($_GET["login-type"]) && isset($_GET["youtube_api_key_1"]) && isset($_GET["admin_username"]) && isset($_GET["admin_password"]) && isset($_GET["admin_email"])) {
     $servername = $_GET["db_host"];
     $username = $_GET["db_user"];
     $password = $_GET["db_pass"];
@@ -24,6 +35,63 @@ if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"])
         $sql = "CREATE TABLE IF NOT EXISTS `users` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `firstname` varchar(255) NOT NULL,
+<<<<<<< HEAD
+            `lastname` varchar(255),
+            `password` varchar(255) NOT NULL,
+            `email` varchar(255) NOT NULL,
+            `type` varchar(255) NOT NULL DEFAULT 'normal',
+            `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+      
+        if ($conn->query($sql) === TRUE) {
+          $sql = "CREATE TABLE IF NOT EXISTS `songs`( 
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `video_id` varchar(255) NOT NULL,
+            `video_title` varchar(255) NOT NULL,
+            `video_thumbnail` varchar(255) NOT NULL,
+            `video_author` varchar(255) NOT NULL,
+            `video_duration` varchar(255) NOT NULL,
+            `video_rounded_duration` varchar(255) NOT NULL,
+            `likes` varchar(255) NOT NULL,
+            `lastlike` varchar(255) NOT NULL,
+            `warn` varchar(255) NOT NULL,
+            `lastwarn` varchar(255) NOT NULL,
+            `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+          if ($conn->query($sql) === TRUE) {
+            $sql = "CREATE TABLE IF NOT EXISTS `realtime` (
+              `id` int(11) NOT NULL AUTO_INCREMENT,
+              `current_listening_id` varchar(255) NOT NULL,
+              `current_video_duration` varchar(255) NOT NULL,
+              `video_pause` boolean NOT NULL,
+              PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+
+            if ($conn->query($sql) === TRUE) {
+              $rslt = $conn->query("SELECT * FROM realtime WHERE id = 1");
+              if($rslt->num_rows > 0){
+                header('Location: ?e=configalready');
+              } else {
+                $sql = "INSERT INTO `realtime` (`current_listening_id`, `current_video_duration`, `video_pause`) VALUES ('1', '0', 0);";
+                if ($conn->query($sql) === TRUE) {
+                  $sql = "INSERT INTO `users` (`firstname`, `password`, `email`, `type`) VALUES ('".$_GET["admin_username"]."', '".password_hash($_GET["admin_password"], PASSWORD_BCRYPT)."', '".$_GET["admin_email"]."', 'admin');";
+
+                  if ($conn->query($sql) === TRUE) {
+                    $conn->close();
+
+                  $database_data = json_decode(file_get_contents("../config/database.json"));
+
+                  $database_data->serveradress = $servername;
+                  $database_data->username = $username;
+                  $database_data->password = $password;
+                  $database_data->database = $dbname;
+
+                  $ytb_token1 = $_GET["youtube_api_key_1"];
+                  $ytb_token2 = $_GET["youtube_api_key_2"];
+                  $ytb_token3 = $_GET["youtube_api_key_3"];
+=======
             `lastname` varchar(255) NOT NULL,
             `password` varchar(255) NOT NULL,
             `email` varchar(255) NOT NULL,
@@ -71,6 +139,7 @@ if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"])
                   $database_data->username = $username;
                   $database_data->password = $password;
                   $database_data->database = $dbname;
+>>>>>>> b4e1184d4d0c61082e1d4a9645cbc5dfd11053fa
 
                   $newJsonString = json_encode($database_data);
                   if(file_put_contents("../config/database.json", $newJsonString) >= 1){
@@ -82,6 +151,13 @@ if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"])
                     $config_data->language = $language;
                     $config_data->login_system = $login_type;
 
+<<<<<<< HEAD
+                    $config_data->ytb_token_1 = $ytb_token1;
+                    $config_data->ytb_token_2 = $ytb_token2;
+                    $config_data->ytb_token_3 = $ytb_token3;
+
+=======
+>>>>>>> b4e1184d4d0c61082e1d4a9645cbc5dfd11053fa
                     $newJsonString = json_encode($config_data);
                     if(file_put_contents("../config/config.json", $newJsonString) >= 1){
                       header('Location: ?s=all');
@@ -92,6 +168,14 @@ if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"])
                   } else {
                     header('Location: ?e=writingfiles#1');
                   }
+<<<<<<< HEAD
+                  } else {
+                    header('Location: ?e=');
+                  }
+
+                  
+=======
+>>>>>>> b4e1184d4d0c61082e1d4a9645cbc5dfd11053fa
 
                 } else {
                   header('Location: ?e=');
@@ -212,10 +296,20 @@ if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"])
                 <strong>Oh snap!</strong> Something went wrong with creating the tables in database, please check your permissions and try again.
               </div>';
             }
+<<<<<<< HEAD
+            if(isset($_GET["e"]) && $_GET["e"] == "configalready"){
+                echo '<div class="alert alert-danger" role="alert">
+                <strong>Oh snap!</strong> Something went wrong with creating the tables in database, please check your database configuration and try again.
+              </div>';
+            }
+=======
+>>>>>>> b4e1184d4d0c61082e1d4a9645cbc5dfd11053fa
 
 
             if(isset($_GET["s"]) && $_GET["s"] == "all") {
-                echo '<div class="alert alert-success" role="alert">This is a success, config has been saved!</div>';
+                echo '<div class="alert alert-success" role="alert">This is a success, config has been saved!<br>You will be redirected in main page in few seconds...</div>';
+                sleep(5);
+                header('Location: ../');
             }
 
             ?>
@@ -245,7 +339,7 @@ if(isset($_GET["db_host"]) && isset($_GET["db_user"]) && isset($_GET["db_name"])
 
                 <h2>Admin Configuration</h2>
                 <input type="text" class="form-control" name="admin_username" placeholder="Admin Username" required>
-                <input type="text" class="form-control" name="admin_password" placeholder="Admin Password" required>
+                <input type="password" class="form-control" name="admin_password" placeholder="Admin Password" required>
                 <input type="text" class="form-control" name="admin_email" placeholder="Admin Email" required>
 
                 <h2>Youtube API v2 credentials</h2>
